@@ -1,8 +1,8 @@
 import numpy as np
-from typing import Type
 
 G = 4*np.pi**2 # Gravitational constant in astronomical units
 interactionsAllowed = True
+DT = 5e-3
 
 class Planet:
     name = ""
@@ -33,7 +33,7 @@ class Planet:
         self.incl = np.deg2rad(i)
         self.r = r
         self.pos = np.array([r, 0.0, 0.0], dtype=float)
-        self.vel = self.initVel()
+        self.vel = self.initVel
     
     def dist(self, m2: 'Planet'=None) -> float:
         '''
@@ -46,19 +46,26 @@ class Planet:
             return np.linalg.norm(self.pos - m2.pos)
         else:
             return np.linalg.norm(self.pos)
-    
+
+    @property
     def initVel(self): # Orbits treated as circular for the purposes of finding initial velocity vector
         v = 2*np.pi*self.dist()/self.period
         return np.array([0, -v*np.cos(self.incl), v*np.sin(self.incl)])
 
+    @property
     def spd(self): # Returns scalar speed of the planet
         return np.linalg.norm(self.vel)
     
+    @property
     def KE(self): # Returns kinetic energy of the planet
-        return 0.5*self.mass*self.spd()**2
+        return 0.5*self.mass*self.spd**2
     
-    def PE(self, parent: 'Planet'): # Returns potential energy of the planet with respect to its parent
+    def PE(self, parent: 'Planet'=None): # Returns potential energy of the planet with respect to its parent
+        if parent==self: return 0
         return G*self.mass*parent.mass/self.dist(parent)
+    
+    def E_net(self, parent: 'Planet'):
+        return self.KE + self.PE(parent)
     
     def L(self, parent: 'Planet'): # Returns angular momentum of the planet with respect to its parent
         return np.linalg.norm(np.cross(self.pos-parent.pos, self.mass*self.vel))
@@ -79,6 +86,9 @@ class Planet:
     
     def dvel(self, plns: list['Planet'], dt: float=2e-4) -> np.ndarray[float]:
         return self.Fg_net(plns)/self.mass*dt
+    
+    def acc(self, plns: list['Planet']) -> np.ndarray[float]:
+        return self.Fg_net(plns)/self.mass
     
     def rebuild(self): # Returns an identical copy of the object. Used to avoid memory address issues
         p = Planet(self.name, self.mass, self.period, self.incl, self.r)
