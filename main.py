@@ -28,12 +28,14 @@ if __name__ == '__main__':
 
     ### USER MODIFICATIONS BEGIN ###
     methods = {euler: 'Euler\'s method',
-               eulerImp: 'Improved Euler\'s method'}
-    method_choice = eulerImp        # Choose from one of the above
-    to_plot = mids                  # Which planets to plot (inner, mid, outer, or plns for all)
-    pln.interactionsAllowed = False  # Allow/disallow interplanetary interactions
-    dt = 5e-3                   # Set time step
-    tmax = 20.0                      # Set cutoff time
+               eulerImp: 'Improved Euler\'s method',
+               heun: 'Heun\'s method',
+               rk3: 'Runge-Kutta (3rd order)'}
+    method_choice = rk3        # Choose from one of the above
+    to_plot = inns                  # Which planets to plot (inner, mid, outer, or plns for all)
+    pln.interactionsAllowed = True  # Allow/disallow interplanetary interactions
+    dt = 2e-3                   # Set time step
+    tmax = 2.0                      # Set cutoff time
     ### USER MODIFICATIONS END ###
 
     all_ps, ts = simulate(plns, dt=dt, tmax=tmax, method=method_choice)
