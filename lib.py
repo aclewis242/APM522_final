@@ -72,6 +72,31 @@ def rk3(plns: list[pln.Planet], dt: float=DT):
         ps = np.append(ps, p.rebuild())
     return ps
 
+def rk4(plns: list[pln.Planet], dt: float=DT):
+    ps = np.array([])
+    for p in plns:
+        p1 = p.rebuild()
+        k1v = p.acc(plns)*dt
+        p1.vel += 0.5*k1v
+        k1r = p.vel*dt
+        p1.pos += 0.5*k1r
+        p2 = p.rebuild()
+        k2v = p1.acc(plns)*dt
+        p2.vel += 0.5*k2v
+        k2r = p1.vel*dt
+        p2.pos += 0.5*k2r
+        p3 = p.rebuild()
+        k3v = p2.acc(plns)*dt
+        p3.vel += k3v
+        k3r = p2.vel*dt
+        p3.pos += k3r
+        k4v = p3.acc(plns)*dt
+        p.vel += (k1v + 2*k2v + 2*k3v + k4v)/6
+        k4r = p3.vel*dt
+        p.pos += (k1r + 2*k2r + 2*k3r + k4r)/6
+        ps = np.append(ps, p.rebuild())
+    return ps
+
 def simulate(plns: list[pln.Planet], dt: float=DT, tmax: float=5.0, method=euler):
     ts = np.linspace(0, tmax, int(tmax/dt))
     all_ps = np.array([[p.rebuild() for p in plns]])
