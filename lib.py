@@ -102,10 +102,10 @@ def ab2(plns: list[pln.Planet], dt: float=DT, past=None):
     for i in range(len(plns)):
         [p, p1] = [plns[i], p1s[i]]
         k0v = p.acc(plns)*dt
-        k1v = p1.acc(p1s)*dt
-        p.vel += 0.5*(3*k0v - k1v)
         k0r = p.vel*dt
+        k1v = p1.acc(p1s)*dt
         k1r = p1.vel*dt
+        p.vel += 0.5*(3*k0v - k1v)
         p.pos += 0.5*(3*k0r - k1r)
         ps = np.append(ps, p.rebuild())
     return ps
@@ -117,12 +117,12 @@ def ab3(plns: list[pln.Planet], dt: float=DT, past=None):
     for i in range(len(plns)):
         [p, p1, p2] = [plns[i], p1s[i], p2s[i]]
         k0v = p.acc(plns)*dt
-        k1v = p1.acc(p1s)*dt
-        k2v = p2.acc(p2s)*dt
-        p.vel += (23*k0v - 16*k1v + 5*k2v)/12
         k0r = p.vel*dt
+        k1v = p1.acc(p1s)*dt
         k1r = p1.vel*dt
+        k2v = p2.acc(p2s)*dt
         k2r = p2.vel*dt
+        p.vel += (23*k0v - 16*k1v + 5*k2v)/12
         p.pos += (23*k0r - 16*k1r + 5*k2r)/12
         ps = np.append(ps, p.rebuild())
     return ps

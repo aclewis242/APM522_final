@@ -8,7 +8,9 @@ from lib import *
 D = 1/365 # Length of a day in years
 M = 3e-6  # Mass of Earth in solar masses
 
-if __name__ == '__main__':
+def mainShell(m_c=euler):
+    method_choice = m_c             # Choose from one of the above
+
     # Initialise solar system
     sun = pln.Star('Sun', 1.0)
     merc = pln.Planet('Mercury', 0.055*M, 87.9691*D, 7.005, 0.387098)
@@ -27,18 +29,10 @@ if __name__ == '__main__':
     outs.append(sun)
 
     ### USER MODIFICATIONS BEGIN ###
-    methods = {euler: 'Euler\'s method',
-               eulerImp: 'Improved Euler\'s method',
-               heun: 'Heun\'s method',
-               rk3: 'Runge-Kutta (3rd order)',
-               rk4: 'Runge-Kutta (4th order)',
-               ab2: 'Adams-Bashforth (2nd order)',
-               ab3: 'Adams-Bashforth (3rd order)'}
-    method_choice = ab3        # Choose from one of the above
     to_plot = inns                  # Which planets to plot (inner, mid, outer, or plns for all)
     pln.interactionsAllowed = True  # Allow/disallow interplanetary interactions
-    dt = 1e-4                   # Set time step
-    tmax = 1.0                      # Set cutoff time
+    dt = 5e-3                       # Set time step
+    tmax = 5.0                      # Set cutoff time
     ### USER MODIFICATIONS END ###
 
     all_ps, ts = simulate(plns, dt=dt, tmax=tmax, method=method_choice)
@@ -75,10 +69,39 @@ if __name__ == '__main__':
     plt.show()
 
     ### RELATIVE ERROR
-    plt.plot(ts, np.log(np.abs(total_E/total_E[0] - 1)))
-    # [print(E/total_E[0]) for E in total_E]
+    rel_err = np.log(np.abs(total_E/total_E[0] - 1))
+    plt.plot(ts, rel_err)
     plt.title(rf'Relative error: {methods[method_choice]}')
     plt.xlabel(r'$t$ (years)')
-    plt.ylabel(r'$\epsilon$')
+    plt.ylabel(r'$\ln\epsilon$')
     plt.savefig(f'{method_choice.__name__}/rel_err_{pln.interactionsAllowed}.png')
     plt.show()
+
+    return [ts, rel_err]
+
+methods = {euler: 'Euler\'s method',
+           eulerImp: 'Improved Euler\'s method',
+           heun: 'Heun\'s method',
+           rk3: 'Runge-Kutta (3rd order)',
+           rk4: 'Runge-Kutta (4th order)',
+           ab2: 'Adams-Bashforth (2nd order)',
+           ab3: 'Adams-Bashforth (3rd order)'}
+
+if __name__ == '__main__':
+    do_all = True # Whether or not to run all simulations at once
+    method_choice = euler # Choose from one of the above
+    names = [method_choice.__name__]
+
+    if do_all:
+        all_res = np.array([mainShell(m_c) for m_c in methods])
+        names = [m_c.__name__ for m_c in methods]
+        ts = all_res[0,0]
+        rel_errs = all_res[:,1]
+        for i in range(len(rel_errs)): plt.plot(ts, rel_errs[i], label=names[i])
+        plt.title(r'Relative errors -- multiple methods')
+        plt.xlabel(r'$t$')
+        plt.ylabel(r'$\ln\epsilon$')
+        plt.legend()
+        plt.savefig('all_rel_errs.png')
+        plt.show()
+    else: mainShell(method_choice)
