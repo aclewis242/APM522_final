@@ -110,6 +110,23 @@ def ab2(plns: list[pln.Planet], dt: float=DT, past=None):
         ps = np.append(ps, p.rebuild())
     return ps
 
+def ab3(plns: list[pln.Planet], dt: float=DT, past=None):
+    ps = np.array([])
+    p1s = past[-1]
+    p2s = past[-2]
+    for i in range(len(plns)):
+        [p, p1, p2] = [plns[i], p1s[i], p2s[i]]
+        k0v = p.acc(plns)*dt
+        k1v = p1.acc(p1s)*dt
+        k2v = p2.acc(p2s)*dt
+        p.vel += (23*k0v - 16*k1v + 5*k2v)/12
+        k0r = p.vel*dt
+        k1r = p1.vel*dt
+        k2r = p2.vel*dt
+        p.pos += (23*k0r - 16*k1r + 5*k2r)/12
+        ps = np.append(ps, p.rebuild())
+    return ps
+
 def simulate(plns: list[pln.Planet], dt: float=DT, tmax: float=5.0, method=euler):
     ts = np.linspace(0, tmax, int(tmax/dt))
     all_ps = np.array([[p.rebuild() for p in plns]])

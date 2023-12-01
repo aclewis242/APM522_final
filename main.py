@@ -32,8 +32,9 @@ if __name__ == '__main__':
                heun: 'Heun\'s method',
                rk3: 'Runge-Kutta (3rd order)',
                rk4: 'Runge-Kutta (4th order)',
-               ab2: 'Adams-Bashforth (2nd order)'}
-    method_choice = ab2        # Choose from one of the above
+               ab2: 'Adams-Bashforth (2nd order)',
+               ab3: 'Adams-Bashforth (3rd order)'}
+    method_choice = ab3        # Choose from one of the above
     to_plot = inns                  # Which planets to plot (inner, mid, outer, or plns for all)
     pln.interactionsAllowed = True  # Allow/disallow interplanetary interactions
     dt = 1e-4                   # Set time step
