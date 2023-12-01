@@ -11,10 +11,9 @@ import matplotlib.pyplot as plt
 # Runge-Kutta
 #   - 3rd: refer to https://acadpubl.eu/jsi/2015-101-5-6-7-8/2015-101-8/21/21.pdf
 #   - 4th: refer to sept 27 pdf
-# Newton's: probably not?
-# Adams-Bashforth: refer to sept 27 pdf
+# Adams-Bashforth: refer to oct 2 pdf
 
-def euler(plns: list[pln.Planet], dt: float=DT):
+def euler(plns: list[pln.Planet], dt: float=DT, past=None):
     ps = np.array([])
     for p in plns:
         p.vel += dt*p.acc(plns)
@@ -22,7 +21,7 @@ def euler(plns: list[pln.Planet], dt: float=DT):
         ps = np.append(ps, p.rebuild())
     return ps
 
-def eulerImp(plns: list[pln.Planet], dt: float=DT):
+def eulerImp(plns: list[pln.Planet], dt: float=DT, past=None):
     ps = np.array([])
     for p in plns:
         k1v = p.acc(plns)*dt
@@ -37,7 +36,7 @@ def eulerImp(plns: list[pln.Planet], dt: float=DT):
         ps = np.append(ps, p.rebuild())
     return ps
 
-def heun(plns: list[pln.Planet], dt: float=DT):
+def heun(plns: list[pln.Planet], dt: float=DT, past=None):
     ps = np.array([])
     for p in plns:
         k1v = p.acc(plns)*dt
@@ -52,7 +51,7 @@ def heun(plns: list[pln.Planet], dt: float=DT):
         ps = np.append(ps, p.rebuild())
     return ps
 
-def rk3(plns: list[pln.Planet], dt: float=DT):
+def rk3(plns: list[pln.Planet], dt: float=DT, past=None):
     ps = np.array([])
     for p in plns:
         p1 = p.rebuild()
@@ -72,7 +71,7 @@ def rk3(plns: list[pln.Planet], dt: float=DT):
         ps = np.append(ps, p.rebuild())
     return ps
 
-def rk4(plns: list[pln.Planet], dt: float=DT):
+def rk4(plns: list[pln.Planet], dt: float=DT, past=None):
     ps = np.array([])
     for p in plns:
         p1 = p.rebuild()
@@ -97,8 +96,26 @@ def rk4(plns: list[pln.Planet], dt: float=DT):
         ps = np.append(ps, p.rebuild())
     return ps
 
+def ab2(plns: list[pln.Planet], dt: float=DT, past=None):
+    ps = np.array([])
+    p1s = past[-1]
+    for i in range(len(plns)):
+        [p, p1] = [plns[i], p1s[i]]
+        k0v = p.acc(plns)*dt
+        k1v = p1.acc(p1s)*dt
+        p.vel += 0.5*(3*k0v - k1v)
+        k0r = p.vel*dt
+        k1r = p1.vel*dt
+        p.pos += 0.5*(3*k0r - k1r)
+        ps = np.append(ps, p.rebuild())
+    return ps
+
 def simulate(plns: list[pln.Planet], dt: float=DT, tmax: float=5.0, method=euler):
     ts = np.linspace(0, tmax, int(tmax/dt))
     all_ps = np.array([[p.rebuild() for p in plns]])
-    for t in ts[1:]: all_ps = np.append(all_ps, [method(plns,dt)], axis=0)
+    init_num = 1
+    if method.__name__[:2] == 'ab': init_num = int(method.__name__[-1])
+    if init_num != 1:
+        for t in ts[1:init_num]: all_ps = np.append(all_ps, [rk4(plns,dt)], axis=0)
+    for t in ts[init_num:]: all_ps = np.append(all_ps, [method(plns,dt,all_ps[-init_num:-1])], axis=0)
     return all_ps, ts

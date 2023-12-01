@@ -31,12 +31,13 @@ if __name__ == '__main__':
                eulerImp: 'Improved Euler\'s method',
                heun: 'Heun\'s method',
                rk3: 'Runge-Kutta (3rd order)',
-               rk4: 'Runge-Kutta (4th order)'}
-    method_choice = rk4        # Choose from one of the above
+               rk4: 'Runge-Kutta (4th order)',
+               ab2: 'Adams-Bashforth (2nd order)'}
+    method_choice = ab2        # Choose from one of the above
     to_plot = inns                  # Which planets to plot (inner, mid, outer, or plns for all)
     pln.interactionsAllowed = True  # Allow/disallow interplanetary interactions
-    dt = 2e-3                   # Set time step
-    tmax = 2.0                      # Set cutoff time
+    dt = 1e-4                   # Set time step
+    tmax = 1.0                      # Set cutoff time
     ### USER MODIFICATIONS END ###
 
     all_ps, ts = simulate(plns, dt=dt, tmax=tmax, method=method_choice)
