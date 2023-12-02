@@ -1,27 +1,31 @@
 import numpy as np
 import planet as pln
-from planet import DT
-import matplotlib.pyplot as plt
 
-### TODO
-# Euler's
-#   - base: r_n+1 = r_n + dt*v_n DONE
-#   - improved: refer to sept 27 pdf DONE
-# Heun's: refer to sept 27 pdf
-# Runge-Kutta
-#   - 3rd: refer to https://acadpubl.eu/jsi/2015-101-5-6-7-8/2015-101-8/21/21.pdf
-#   - 4th: refer to sept 27 pdf
-# Adams-Bashforth: refer to oct 2 pdf
+def euler(plns: list[pln.Planet], dt: float, past=None) -> np.ndarray[pln.Planet]:
+    '''
+    Euler's method, governed by the expression y_n+1 = y_n + dt*y_n'.
 
-def euler(plns: list[pln.Planet], dt: float=DT, past=None):
+    ### Parameters
+    plns: The list of planets in the system
+    dt: Timestep
+    (past: Not used in this method. Included for shell compatibility with AB.)
+    '''
     ps = np.array([])
     for p in plns:
-        p.vel += dt*p.acc(plns)
         p.pos += dt*p.vel
+        p.vel += dt*p.acc(plns)
         ps = np.append(ps, p.rebuild())
     return ps
 
-def eulerImp(plns: list[pln.Planet], dt: float=DT, past=None):
+def eulerImp(plns: list[pln.Planet], dt: float, past=None) -> np.ndarray[pln.Planet]:
+    '''
+    Improved Euler's method, governed by the expression y_n+1 = y_n + 0.5(k1 + k2).
+
+    ### Parameters
+    plns: The list of planets in the system
+    dt: Timestep
+    (past: Not used in this method. Included for shell compatibility with AB.)
+    '''
     ps = np.array([])
     for p in plns:
         k1v = p.acc(plns)*dt
@@ -31,12 +35,20 @@ def eulerImp(plns: list[pln.Planet], dt: float=DT, past=None):
         p1.pos += k1r
         k2v = p1.acc(plns)*dt
         p.vel += 0.5*(k1v + k2v)
-        k2r = p1.vel*dt # maybe change to just 'p.vel*dt'? Gives better results, but it might not be the same algorithm
+        k2r = p1.vel*dt
         p.pos += 0.5*(k1r + k2r)
         ps = np.append(ps, p.rebuild())
     return ps
 
-def heun(plns: list[pln.Planet], dt: float=DT, past=None):
+def heun(plns: list[pln.Planet], dt: float, past=None) -> np.ndarray[pln.Planet]:
+    '''
+    Heun's method, a variation on improved Euler governed by the formula y_n+1 = y_n + 0.25(k1 + 3k2).
+
+    ### Parameters
+    plns: The list of planets in the system
+    dt: Timestep
+    (past: Not used in this method. Included for shell compatibility with AB.)
+    '''
     ps = np.array([])
     for p in plns:
         k1v = p.acc(plns)*dt
@@ -51,7 +63,15 @@ def heun(plns: list[pln.Planet], dt: float=DT, past=None):
         ps = np.append(ps, p.rebuild())
     return ps
 
-def rk3(plns: list[pln.Planet], dt: float=DT, past=None):
+def rk3(plns: list[pln.Planet], dt: float, past=None) -> np.ndarray[pln.Planet]:
+    '''
+    3rd-order Runge-Kutta method, governed by the formula [blah].
+
+    ### Parameters
+    plns: The list of planets in the system
+    dt: Timestep
+    (past: Not used in this method. Included for shell compatibility with AB.)
+    '''
     ps = np.array([])
     for p in plns:
         p1 = p.rebuild()
@@ -71,7 +91,15 @@ def rk3(plns: list[pln.Planet], dt: float=DT, past=None):
         ps = np.append(ps, p.rebuild())
     return ps
 
-def rk4(plns: list[pln.Planet], dt: float=DT, past=None):
+def rk4(plns: list[pln.Planet], dt: float, past=None) -> np.ndarray[pln.Planet]:
+    '''
+    4th-order Runge-Kutta method, governed by the expression y_n+1 = y_n + (k1 + 2k2 + 2k3 + k4)/6.
+
+    ### Parameters
+    plns: The list of planets in the system
+    dt: Timestep
+    (past: Not used in this method. Included for shell compatibility with AB.)
+    '''
     ps = np.array([])
     for p in plns:
         p1 = p.rebuild()
@@ -96,11 +124,19 @@ def rk4(plns: list[pln.Planet], dt: float=DT, past=None):
         ps = np.append(ps, p.rebuild())
     return ps
 
-def ab2(plns: list[pln.Planet], dt: float=DT, past=None):
+def ab2(plns: list[pln.Planet], dt: float, past: list[np.ndarray[pln.Planet]]) -> np.ndarray[pln.Planet]:
+    '''
+    2nd-order Adams-Bashforth method, governed by the expression y_n+1 = y_n + 0.5dt(3y_n' - y_n-1').
+
+    ### Parameters
+    plns: The list of planets in the system
+    dt: Timestep
+    past: The last iteration's results. Initialised using RK4.
+    '''
     ps = np.array([])
     p1s = past[-1]
     for i in range(len(plns)):
-        [p, p1] = [plns[i], p1s[i]]
+        p, p1 = plns[i], p1s[i]
         k0v = p.acc(plns)*dt
         k0r = p.vel*dt
         k1v = p1.acc(p1s)*dt
@@ -110,12 +146,20 @@ def ab2(plns: list[pln.Planet], dt: float=DT, past=None):
         ps = np.append(ps, p.rebuild())
     return ps
 
-def ab3(plns: list[pln.Planet], dt: float=DT, past=None):
+def ab3(plns: list[pln.Planet], dt: float, past: list[np.ndarray[pln.Planet]]) -> np.ndarray[pln.Planet]:
+    '''
+    3rd-order Adams-Bashforth method, governed by the expression y_n+1 = y_n + dt(23y_n' - 16y_n-1' + 5y_n-2')/12.
+
+    ### Parameters
+    plns: The list of planets in the system
+    dt: Timestep
+    past: The last two iterations' results. Initialised using RK4.
+    '''
     ps = np.array([])
     p1s = past[-1]
     p2s = past[-2]
     for i in range(len(plns)):
-        [p, p1, p2] = [plns[i], p1s[i], p2s[i]]
+        p, p1, p2 = plns[i], p1s[i], p2s[i]
         k0v = p.acc(plns)*dt
         k0r = p.vel*dt
         k1v = p1.acc(p1s)*dt
@@ -127,7 +171,21 @@ def ab3(plns: list[pln.Planet], dt: float=DT, past=None):
         ps = np.append(ps, p.rebuild())
     return ps
 
-def simulate(plns: list[pln.Planet], dt: float=DT, tmax: float=5.0, method=euler):
+def simulate(plns: list[pln.Planet], dt: float, tmax: float=5.0, method=euler) -> tuple[np.ndarray[np.ndarray[pln.Planet]], np.ndarray[float]]:
+    '''
+    Simulation shell. Runs the specified method over the specified time for the specified system.
+
+    ### Parameters
+    plns: The list of planets in the system
+    dt: Timestep
+    tmax: Max. time
+    method: Iterative method to use
+
+    ### Returns
+    all_ps: An array of system lists for each t
+    ts: A list of t values
+    '''
+
     ts = np.linspace(0, tmax, int(tmax/dt))
     all_ps = np.array([[p.rebuild() for p in plns]])
     init_num = 1

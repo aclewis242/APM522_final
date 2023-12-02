@@ -3,47 +3,39 @@ import matplotlib.pyplot as plt
 import planet as pln
 import axes
 from lib import *
+from syslib import *
 
-# Astronomical units used (i.e. mass in terms of solar masses, time in terms of years, distance in terms of AU)
-D = 1/365 # Length of a day in years
-M = 3e-6  # Mass of Earth in solar masses
+def mainShell(m_c=euler, sys=solar, dt=2e-2, tmax=2.0, doInts=True):
+    '''
+    The main method shell. Contains the bulk of the code, and is separate to allow for multiple methods to be run at once.
 
-def mainShell(m_c=euler):
-    method_choice = m_c             # Choose from one of the above
+    ### Parameters
+    m_c: The method to use
+    sys: The planetary system to use
+    dt: Timestep
+    tmax: Max. time
+    doInts: Allow/disallow interplanetary interactions
+    '''
+    method_choice = m_c
 
-    # Initialise solar system
-    sun = pln.Star('Sun', 1.0)
-    merc = pln.Planet('Mercury', 0.055*M, 87.9691*D, 7.005, 0.387098)
-    venus = pln.Planet('Venus', 0.815*M, 224.701*D, 3.39458, 0.723332)
-    earth = pln.Planet('Earth', M, 365*D, 0.0, 1.0)
-    mars = pln.Planet('Mars', 0.107*M, 686.98*D, 1.85, 1.523681)
-    jup = pln.Planet('Jupiter', 317.8*M, 11.862, 1.303, 5.2038)
-    sat = pln.Planet('Saturn', 95.159*M, 29.4475, 2.485, 9.5826)
-    uranus = pln.Planet('Uranus', 14.536*M, 84.0205, 0.773, 19.19126)
-    nept = pln.Planet('Neptune', 17.147*M, 164.8, 1.77, 30.07)
+    plns = sys()
+    to_plot = plns
+    if sys.__name__ == 'solar':
+        inns = plns[:5]
+        mids = plns[:6]
+        outs = plns[5:]
+        outs.append(plns[0])
+        to_plot = plns # Which planets to plot (inner, mid, outer, or plns for all)
 
-    plns = [sun, merc, venus, earth, mars, jup, sat, uranus, nept]
-    inns = plns[:5]
-    mids = plns[:6]
-    outs = plns[5:]
-    outs.append(sun)
-
-    ### USER MODIFICATIONS BEGIN ###
-    to_plot = inns                  # Which planets to plot (inner, mid, outer, or plns for all)
-    pln.interactionsAllowed = True  # Allow/disallow interplanetary interactions
-    dt = 5e-3                       # Set time step
-    tmax = 5.0                      # Set cutoff time
-    ### USER MODIFICATIONS END ###
-
+    pln.interactionsAllowed = doInts
     all_ps, ts = simulate(plns, dt=dt, tmax=tmax, method=method_choice)
     all_ps = all_ps.T
-    # [print(ap.pos) for ap in all_ps[1]]
 
     ### GRAPH POSITION
     ax = plt.axes(projection='3d')
     for all_p in all_ps:
         all_pos = np.array([p.pos for p in all_p]).T
-        if all_p[0] in to_plot: ax.plot3D(all_pos[0], all_pos[1], all_pos[2], label=all_p[0].name)
+        if all_p[0] in to_plot: ax.plot3D(all_pos[0], all_pos[1], all_pos[2], label=all_p[0].name, color=all_p[0].clr)
 
     ax.set_title(rf'Orbital trajectories: {methods[method_choice]}')
     ax.set_xlabel(r'$x$ (AU)')
@@ -59,7 +51,7 @@ def mainShell(m_c=euler):
     for all_p in all_ps:
         all_Es = np.array([p.E_net(all_p[0]) for p in all_p])
         total_E += all_Es
-        if all_p[0] in to_plot: plt.plot(ts, all_Es, label=all_p[0].name)
+        if all_p[0] in to_plot: plt.plot(ts, all_Es, label=all_p[0].name, color=all_p[0].clr)
     plt.plot(ts, total_E, label='Total energy')
     plt.title(rf'Energies: {methods[method_choice]}')
     plt.xlabel(r'$t$ (years)')
@@ -87,13 +79,22 @@ methods = {euler: 'Euler\'s method',
            ab2: 'Adams-Bashforth (2nd order)',
            ab3: 'Adams-Bashforth (3rd order)'}
 
+                                            # Recommended tmaxs/dts:
+systems = {solar: 'Solar system',           # 2.0/2e-2
+           jup_moons: 'Jupiter\'s moons'}   # 0.1/2e-5
+
 if __name__ == '__main__':
-    do_all = True # Whether or not to run all simulations at once
-    method_choice = euler # Choose from one of the above
+    do_all = False # Whether or not to run all simulations at once
+    # Choose all of the following from the above
+    method_choice = euler
+    sys = solar
+    tmax = 2.0
+    dt = 2e-2
+    doInts = True # Allow/disallow interplanetary interactions
     names = [method_choice.__name__]
 
     if do_all:
-        all_res = np.array([mainShell(m_c) for m_c in methods])
+        all_res = np.array([mainShell(m_c, sys, dt, tmax, doInts) for m_c in methods])
         names = [m_c.__name__ for m_c in methods]
         ts = all_res[0,0]
         rel_errs = all_res[:,1]
@@ -104,4 +105,4 @@ if __name__ == '__main__':
         plt.legend()
         plt.savefig('all_rel_errs.png')
         plt.show()
-    else: mainShell(method_choice)
+    else: mainShell(method_choice, sys, dt, tmax, doInts)
