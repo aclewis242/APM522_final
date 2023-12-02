@@ -43,7 +43,7 @@ def mainShell(m_c=euler, sys=solar, dt=2e-2, tmax=2.0, doInts=True):
     ax.set_zlabel(r'$z$ (AU)')
     ax.legend()
     axes.set_axes_equal(ax)
-    plt.savefig(f'{method_choice.__name__}/trajectories_{pln.interactionsAllowed}.png')
+    plt.savefig(f'{method_choice.__name__}/{sys.__name__}_trajectories.png')
     plt.show()
 
     ### GRAPH ENERGY
@@ -57,7 +57,7 @@ def mainShell(m_c=euler, sys=solar, dt=2e-2, tmax=2.0, doInts=True):
     plt.xlabel(r'$t$ (years)')
     plt.ylabel(r'$E$ ($M_{sun}(\frac{AU}{yr})^2$)')
     plt.legend()
-    plt.savefig(f'{method_choice.__name__}/energies_{pln.interactionsAllowed}.png')
+    plt.savefig(f'{method_choice.__name__}/{sys.__name__}_energies.png')
     plt.show()
 
     ### RELATIVE ERROR
@@ -66,7 +66,7 @@ def mainShell(m_c=euler, sys=solar, dt=2e-2, tmax=2.0, doInts=True):
     plt.title(rf'Relative error: {methods[method_choice]}')
     plt.xlabel(r'$t$ (years)')
     plt.ylabel(r'$\ln\epsilon$')
-    plt.savefig(f'{method_choice.__name__}/rel_err_{pln.interactionsAllowed}.png')
+    plt.savefig(f'{method_choice.__name__}/{sys.__name__}_rel_err.png')
     plt.show()
 
     return [ts, rel_err]
@@ -81,15 +81,18 @@ methods = {euler: 'Euler\'s method',
 
                                             # Recommended tmaxs/dts:
 systems = {solar: 'Solar system',           # 2.0/2e-2
-           jup_moons: 'Jupiter\'s moons'}   # 0.1/2e-5
+           inns: 'Inner solar system',      # 2.0/2e-2
+           mids: 'Mid solar system',        # 12.0/2e-2
+           outs: 'Outer solar system',      # 200.0/2.0
+           jup_moons: 'Jupiter\'s moons'}   # 1.0/2e-4
 
 if __name__ == '__main__':
-    do_all = False # Whether or not to run all simulations at once
+    do_all = True # Whether or not to run all simulations at once
     # Choose all of the following from the above
-    method_choice = euler
-    sys = solar
-    tmax = 2.0
-    dt = 2e-2
+    method_choice = rk4
+    sys = jup_moons
+    tmax = 1.0
+    dt = 2e-4
     doInts = True # Allow/disallow interplanetary interactions
     names = [method_choice.__name__]
 
@@ -103,6 +106,6 @@ if __name__ == '__main__':
         plt.xlabel(r'$t$')
         plt.ylabel(r'$\ln\epsilon$')
         plt.legend()
-        plt.savefig('all_rel_errs.png')
+        plt.savefig(f'{sys.__name__}_all_rel_errs.png')
         plt.show()
     else: mainShell(method_choice, sys, dt, tmax, doInts)

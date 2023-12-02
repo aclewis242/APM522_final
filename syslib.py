@@ -21,6 +21,30 @@ def solar() -> list[pln.Planet]:
 
     return [sun, merc, venus, earth, mars, jup, sat, uranus, nept]
 
+def inns() -> list[pln.Planet]:
+    '''
+    The inner solar system (up to Mars), represented as a list of Planet objects.
+    '''
+    return solar()[:5]
+
+def mids() -> list[pln.Planet]:
+    '''
+    The mid solar system (Venus-Jupiter), represented as a list of Planet objects.
+    '''
+    s = solar()
+    rv = [s[0]]
+    [rv.append(p) for p in s[2:6]]
+    return rv
+
+def outs() -> list[pln.Planet]:
+    '''
+    The outer solar system (Jupiter-Neptune), represented as a list of Planet objects.
+    '''
+    s = solar()
+    rv = [s[0]]
+    [rv.append(p) for p in s[5:]]
+    return  rv
+
 def jup_moons() -> list[pln.Planet]:
     '''
     Jupiter's moons (Galilean, specifically), represented as a list of Planet objects.
