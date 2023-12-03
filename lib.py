@@ -171,7 +171,7 @@ def ab3(plns: list[pln.Planet], dt: float, past: list[np.ndarray[pln.Planet]]) -
         ps = np.append(ps, p.rebuild())
     return ps
 
-def simulate(plns: list[pln.Planet], dt: float, tmax: float=5.0, method=euler) -> tuple[np.ndarray[np.ndarray[pln.Planet]], np.ndarray[float]]:
+def simulate(plns: list[pln.Planet], dt: float, tmax: float=5.0, method=euler) -> tuple:
     '''
     Simulation shell. Runs the specified method over the specified time for the specified system.
 

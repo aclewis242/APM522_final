@@ -62,6 +62,7 @@ def mainShell(m_c=euler, sys=solar, dt=2e-2, tmax=2.0, doInts=True):
 
     ### RELATIVE ERROR
     rel_err = np.log(np.abs(total_E/total_E[0] - 1))
+    print(f'Ultimate relative error ({method_choice.__name__}): {round(np.mean(rel_err[-10:])*1000)/1000}')
     plt.plot(ts, rel_err)
     plt.title(rf'Relative error: {methods[method_choice]}')
     plt.xlabel(r'$t$ (years)')
